@@ -89,22 +89,20 @@ kubectl get svc
 
 **Step 3) Configure Ingress for EKS Cluster**
 ```
- 1: Prerequisites- enabled OIDC for cluster
+Prerequisites:
+1: enable OIDC for cluster
 eksctl utils associate-iam-oidc-provider --cluster myekstest-cluster-01 --approve
-
 2: Create IAM Policy for ALB Controller
 curl -o iam_policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/main/docs/install/iam_policy.json
 aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy --policy-document file://iam_policy.json
-
 3: Create IAM SVC Acct for Controller
 eksctl create iamserviceaccount --cluster myekstest-cluster-01 --namespace kube-system --name aws-load-balancer-controller --attach-policy-arn arn:aws:iam::00000000000:policy/AWSLoadBalancerControllerIAMPolicy --approve
-
 4: Install ALB Controller via Helm
 helm repo add eks https://aws.github.io/eks-charts
 helm repo update
 helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=myekstest-cluster-01 --set region=us-east-2 --set vpcId=vpc-079f124622ede5786 --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller
 
-5: Verify Installation
+kubectl apply -f visitor-app-ingress-v2.yml
 kubectl get deployment -n kube-system aws-load-balancer-controller
 kubectl get ingress
 aws eks describe-cluster --name myekstest-cluster-01 --query "cluster.resourcesVpcConfig.vpcId" --output text
