@@ -1,2 +1,2 @@
-# IaC_Visitor_Counter-App_Project--Python_EKS_ALB_CICD-
+# IaC_Visitor_Counter-App_Project-Python_EKS_ALB_CICD
 IaC_Visitor_Counter-App_Project-PythonApp using_EKS_ALB_CICD
