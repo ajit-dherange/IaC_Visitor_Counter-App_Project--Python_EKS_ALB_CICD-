@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: visitor-app
-        image: 533267347956.dkr.ecr.us-east-2.amazonaws.com/visitorcountapp:latest
+        image: 00000000000.dkr.ecr.us-east-2.amazonaws.com/visitorcountapp:latest
         ports:
         - containerPort: 5000
         env:
