@@ -26,7 +26,7 @@ Terraform
 AWSCLI
 eksctl
 Download repo in your PC
-``
+```
 
 ### Option 1: Deploy visitor counter app to EKS using Docker Hub`
 
