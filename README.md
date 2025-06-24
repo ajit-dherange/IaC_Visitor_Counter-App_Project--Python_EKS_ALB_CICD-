@@ -20,12 +20,12 @@ Provide infrastructure design diagram
 
 **Pre-requisite:**
 ```
+Download this repo in your PC and make sure below app installed in your PC
 Git 
 Docker
 Terraform
 AWSCLI
 eksctl
-Download repo in your PC
 ```
 
 ### Option 1: Deploy visitor counter app to EKS using Docker Hub`
@@ -56,7 +56,7 @@ kubectl get svc
 >> Browse a75034d3d45714e7ba6213e60fa15bd9-624944191.us-east-2.elb.amazonaws.com
 ```
 
-### Option 2: Deploy visitor counter app to EKS using AWS ECR
+### Option 2: Deploy visitor counter app to EKS using AWS ECR with GitLab CICD
 **Step 1) Build Image using GitLab CICD**
 ```
 Login to GitLab
