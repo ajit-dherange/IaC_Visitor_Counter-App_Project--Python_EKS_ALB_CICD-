@@ -18,6 +18,7 @@ variables:
 stages:
   - test
   - secret-detection
+  - dependency_scanning
   - deploy-ecr  
 
 sast:
@@ -26,6 +27,25 @@ sast:
 secret_detection:
   stage: secret-detection
 
+dependency-scanning:
+  image: python:latest
+  stage: dependency_scanning   
+  before_script:     
+    - echo "gemnasium-python scan"      
+  script:      
+    - if [ ! -f "requirements.txt" ]; then touch requirements.txt; fi 
+    - pip install --upgrade pip && pip install safety     
+    - pip install -r requirements.txt  # If you have a requirements file    
+    - safety check -r requirements.txt --output json > gl-dependency-scanning-report.json
+    - ls -lh   
+  artifacts: 
+    reports: 
+      dependency_scanning: gl-dependency-scanning-report.json
+    paths: 
+      - gl-dependency-scanning-report.json
+    expire_in: 1 week  
+  allow_failure: true  
+  
 build-image-and-push:
   stage: deploy-ecr   
   image:
