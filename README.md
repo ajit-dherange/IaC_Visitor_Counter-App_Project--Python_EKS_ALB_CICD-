@@ -89,6 +89,10 @@ kubectl get svc
 
 **Step 3) Configure Ingress for EKS Cluster**
 ```
+1) Update kubernates service
+kubectl apply -f visitor-app-deploy-v2.yml
+
+2) Configure Ingress to EKS
 Prerequisites:
 1: enable OIDC for cluster
 eksctl utils associate-iam-oidc-provider --cluster myekstest-cluster-01 --approve
