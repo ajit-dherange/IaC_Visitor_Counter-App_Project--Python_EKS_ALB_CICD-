@@ -7,13 +7,13 @@
 Create an application featuring a webpage displaying the message "This is the <x> visitor," where <x> is a counter fetched from Redis. The counter should increment with each visit to the index page. The application should be dockerize
 
 2.	[CI/CD Pipeline] 
-Devise a plan for the automated deployment of the above application to production using GitLab. 
+Pipeline for the automated deployment of the above application to production using GitLab. 
 
 3.	[Cloud infrastructure] 
 Deploy an Amazon EKS cluster using Infrastructure as Code (IaC) with Terraform.
 
 4.  [Infra Design]
-Provide infrastructure design diagram
+Draw infrastructure design diagram
 
 
 ## Solution:
@@ -26,7 +26,9 @@ Docker
 Terraform
 AWSCLI
 eksctl
+Kubectl
 ```
+***Please Note: replace your dockerhub id with ardher***
 
 ### Option 1: Deploy visitor counter app to EKS using Docker Hub`
 
@@ -34,9 +36,10 @@ eksctl
 
 ```
 docker build -t visitorcountapp .
-docker tag visitorcountapp ardher/visitorcountapp:latest
+docker tag visitorcountapp ardher/visitorcountapp:latest 
 docker login
-docker push ardher/visitorcountapp:latest
+docker push ardher/visitorcountapp:latest 
+
 ```
 
 **Step 2) Create EKS Cluster**
@@ -115,5 +118,5 @@ kubectl get ingress
 >> Browse k8s-default-visitora-cfab75fbe6-1700530975.us-east-2.elb.amazonaws.com
 ```
 
-
+***Don't forget to destory resources after test completed***
 
