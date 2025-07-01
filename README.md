@@ -35,6 +35,7 @@ Kubectl
 **Step 1) Build Image manually**
 
 ```
+# Build Container image
 docker build -t visitorcountapp .
 docker tag visitorcountapp ardher/visitorcountapp:latest 
 docker login
@@ -44,17 +45,24 @@ docker push ardher/visitorcountapp:latest
 
 **Step 2) Create EKS Cluster**
 ```
+# Deploy EKS
 Terraform init
 Terraform plan
 Terraform apply
 
+# Configure EKS
 aws eks update-kubeconfig --name myekstest-cluster-01
 kubectl get svc
 kubectl get nodes
 kubectl get pods
+
+# Deploy visitor-app Application 
 kubectl apply -f visitor-app-deploy.yml
 kubectl apply -f visitor-app-redis-deploy.yml
 kubectl get deploy
+kubectl get pods
+
+# Verify visitor-app Application is working
 kubectl get svc
 >> Browse a75034d3d45714e7ba6213e60fa15bd9-624944191.us-east-2.elb.amazonaws.com
 ```
@@ -87,20 +95,23 @@ kubectl get svc
 kubectl get nodes
 kubectl get pods
 
+# Deploy visitor-app Application 
 kubectl apply -f visitor-app-redis-deploy-v2.yml
 kubectl apply -f visitor-app-deploy-v2.yml
 kubectl get deploy
 kubectl get pods
+
+# Verify visitor-app Application is working
 kubectl get svc
 >> Browse a75034d3d45714e7ba6213e60fa15bd9-624944191.us-east-2.elb.amazonaws.com
 ```
 
 **Step 3) Configure Ingress for EKS Cluster**
 ```
-1) Update kubernates service
+I) Update kubernates service
 kubectl apply -f visitor-app-deploy-v2.yml
 
-2) Configure Ingress to EKS
+II) Configure Ingress to EKS
 Prerequisites:
 1: enable OIDC for cluster
 eksctl utils associate-iam-oidc-provider --cluster myekstest-cluster-01 --approve
@@ -114,11 +125,14 @@ helm repo add eks https://aws.github.io/eks-charts
 helm repo update
 helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=myekstest-cluster-01 --set region=us-east-2 --set vpcId=vpc-079f124622ede5786 --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller
 
+III) Deploy Ingress
 kubectl apply -f visitor-app-ingress-v2.yml
 kubectl get deployment -n kube-system aws-load-balancer-controller
 kubectl get ingress
 aws eks describe-cluster --name myekstest-cluster-01 --query "cluster.resourcesVpcConfig.vpcId" --output text
 kubectl get pods -l app=visitor-app -o wide
+
+IV) Verify visitor-app Application is working
 kubectl get ingress
 >> Browse k8s-default-visitora-cfab75fbe6-1700530975.us-east-2.elb.amazonaws.com
 ```
