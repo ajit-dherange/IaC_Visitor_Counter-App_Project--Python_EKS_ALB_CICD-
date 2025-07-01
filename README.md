@@ -30,7 +30,7 @@ Kubectl
 ```
 ***Please Note: replace your dockerhub id with ardher***
 
-### Option 1: Deploy visitor counter app to EKS using Docker Hub`
+### Option 1: Deploy visitor counter app to EKS with Load Balancer using Docker Hub`
 
 **Step 1) Build Image manually**
 
@@ -59,12 +59,15 @@ kubectl get svc
 >> Browse a75034d3d45714e7ba6213e60fa15bd9-624944191.us-east-2.elb.amazonaws.com
 ```
 
-### Option 2: Deploy visitor counter app to EKS using AWS ECR with GitLab CICD
+### Option 2: Deploy visitor counter app to EKS with Ingress using AWS ECR (Automate deployment using GitLab CICD)
 **Step 1) Build Image using GitLab CICD**
 ```
+# Configure GitLab CICD Pipeline
 Login to GitLab
 Create new Project
 Copy yml file to the repo
+
+# Deploy Image to ECR
 Goto pipelines to check pipeline status
 Goto Jobs
 Run Job build-and-push
@@ -73,10 +76,12 @@ Verify container image updated to AWS ECR repo
 
 **Step 2) Create EKS Cluster**
 ```
+# Deploy EKS
 Terraform init
 Terraform plan
 Terraform apply
 
+# Configure EKS
 aws eks update-kubeconfig --name myekstest-cluster-01
 kubectl get svc
 kubectl get nodes
