@@ -7,13 +7,13 @@
 Create an application featuring a webpage displaying the message "This is the <x> visitor," where <x> is a counter fetched from Redis. The counter should increment with each visit to the index page. The application should be dockerize
 
 2.	[CI/CD Pipeline] 
-Devise a plan for the automated deployment of the above application to production using GitLab. 
+Pipeline for the automated deployment of the above application to production using GitLab. 
 
 3.	[Cloud infrastructure] 
 Deploy an Amazon EKS cluster using Infrastructure as Code (IaC) with Terraform.
 
 4.  [Infra Design]
-Provide infrastructure design diagram
+Draw infrastructure design diagram
 
 
 ## Solution:
@@ -26,42 +26,56 @@ Docker
 Terraform
 AWSCLI
 eksctl
+Kubectl
 ```
+***Please Note: replace your dockerhub id with ardher***
 
-### Option 1: Deploy visitor counter app to EKS using Docker Hub`
+### Option 1: Deploy visitor counter app to EKS with Load Balancer using Docker Hub`
 
 **Step 1) Build Image manually**
 
 ```
+# Build Container image
 docker build -t visitorcountapp .
-docker tag visitorcountapp ardher/visitorcountapp:latest
+docker tag visitorcountapp ardher/visitorcountapp:latest 
 docker login
-docker push ardher/visitorcountapp:latest
+docker push ardher/visitorcountapp:latest 
+
 ```
 
 **Step 2) Create EKS Cluster**
 ```
+# Deploy EKS
 Terraform init
 Terraform plan
 Terraform apply
 
+# Configure EKS
 aws eks update-kubeconfig --name myekstest-cluster-01
 kubectl get svc
 kubectl get nodes
 kubectl get pods
+
+# Deploy visitor-app Application 
 kubectl apply -f visitor-app-deploy.yml
 kubectl apply -f visitor-app-redis-deploy.yml
 kubectl get deploy
+kubectl get pods
+
+# Verify visitor-app Application is working
 kubectl get svc
 >> Browse a75034d3d45714e7ba6213e60fa15bd9-624944191.us-east-2.elb.amazonaws.com
 ```
 
-### Option 2: Deploy visitor counter app to EKS using AWS ECR with GitLab CICD
+### Option 2: Deploy visitor counter app to EKS with Ingress using AWS ECR (Automate deployment using GitLab CICD)
 **Step 1) Build Image using GitLab CICD**
 ```
+# Configure GitLab CICD Pipeline
 Login to GitLab
 Create new Project
 Copy yml file to the repo
+
+# Deploy Image to ECR
 Goto pipelines to check pipeline status
 Goto Jobs
 Run Job build-and-push
@@ -70,29 +84,34 @@ Verify container image updated to AWS ECR repo
 
 **Step 2) Create EKS Cluster**
 ```
+# Deploy EKS
 Terraform init
 Terraform plan
 Terraform apply
 
+# Configure EKS
 aws eks update-kubeconfig --name myekstest-cluster-01
 kubectl get svc
 kubectl get nodes
 kubectl get pods
 
+# Deploy visitor-app Application 
 kubectl apply -f visitor-app-redis-deploy-v2.yml
 kubectl apply -f visitor-app-deploy-v2.yml
 kubectl get deploy
 kubectl get pods
+
+# Verify visitor-app Application is working
 kubectl get svc
 >> Browse a75034d3d45714e7ba6213e60fa15bd9-624944191.us-east-2.elb.amazonaws.com
 ```
 
 **Step 3) Configure Ingress for EKS Cluster**
 ```
-1) Update kubernates service
+I) Update kubernates service
 kubectl apply -f visitor-app-deploy-v2.yml
 
-2) Configure Ingress to EKS
+II) Configure Ingress to EKS
 Prerequisites:
 1: enable OIDC for cluster
 eksctl utils associate-iam-oidc-provider --cluster myekstest-cluster-01 --approve
@@ -106,14 +125,17 @@ helm repo add eks https://aws.github.io/eks-charts
 helm repo update
 helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=myekstest-cluster-01 --set region=us-east-2 --set vpcId=vpc-079f124622ede5786 --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller
 
+III) Deploy Ingress
 kubectl apply -f visitor-app-ingress-v2.yml
 kubectl get deployment -n kube-system aws-load-balancer-controller
 kubectl get ingress
 aws eks describe-cluster --name myekstest-cluster-01 --query "cluster.resourcesVpcConfig.vpcId" --output text
 kubectl get pods -l app=visitor-app -o wide
+
+IV) Verify visitor-app Application is working
 kubectl get ingress
 >> Browse k8s-default-visitora-cfab75fbe6-1700530975.us-east-2.elb.amazonaws.com
 ```
 
-
+***Don't forget to destory resources after test completed***
 

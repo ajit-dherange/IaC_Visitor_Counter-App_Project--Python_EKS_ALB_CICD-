@@ -8,12 +8,12 @@ variables:
   IMAGE_URI: $ECR_REPO_URI:$IMAGE_TAG
   TAG_NAME: "${CI_PROJECT_NAME}_YYYY.MM.DD"
   ### Add below values/variables into the CICD variables:
-  ###$AWS_ACCESS_KEY_ID
-  ###$AWS_SECRET_ACCESS_KEY
-  ###AWS_REGION
-  ###$ECR_REPO_URI  
-  ###IMAGE_DEV
-  ###ECR_REPO_DEV
+  ### AWS_ACCESS_KEY_ID
+  ### AWS_SECRET_ACCESS_KEY
+  ### AWS_REGION
+  ### ECR_REPO_URI  
+  ### IMAGE_DEV
+  ### ECR_REPO_DEV
 
 stages:
   - test
@@ -76,21 +76,14 @@ build-image-and-push:
     - echo "Fetching ECR login password..."
     - aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_REPO_URI
   script:
-    - echo "Building Docker image..."
-    ###- docker build -t $IMAGE_URI .
+    - echo "Building Docker image..."   
     - echo $IMAGE_URI_DEV
     - docker build -t $IMAGE_DEV .
     - echo "Pushing Docker image to ECR..."
     - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin $ECR_REPO_DEV
-    - docker tag $IMAGE_DEV $IMAGE_URI_DEV
-    ###- docker push $IMAGE_URI
+    - docker tag $IMAGE_DEV $IMAGE_URI_DEV    
     - docker push $IMAGE_URI_DEV
   after_script:   
       - unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN
   allow_failure: true
   when: manual  
-  artifacts:
-    paths: 
-      - $DIGESTFILE_NAME
-    expire_in: 1 week       
-
