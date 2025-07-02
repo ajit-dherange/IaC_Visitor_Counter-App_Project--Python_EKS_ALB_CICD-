@@ -128,10 +128,6 @@ $  kubectl apply -f visitor-app-redis-deploy-v2.yml
 $  kubectl apply -f visitor-app-deploy-v2.yml
 $  kubectl get deploy
 $  kubectl get pods
-
-IV) Verify visitor-app Application is working
-$  kubectl get svc
->> Browse a75034d3d45714e7ba6213e60fa15bd9-624944191.us-east-2.elb.amazonaws.com
 ```
 
 **Step 3) Configure Ingress for EKS Cluster**
