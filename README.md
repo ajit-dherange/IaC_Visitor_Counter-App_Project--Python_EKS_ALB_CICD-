@@ -35,12 +35,14 @@ Kubectl
 **Step 1) Build Image and Push to Docker Hub**
 
 ```
-# Build Container image
-docker build -t visitorcountapp .
-docker tag visitorcountapp ardher/visitorcountapp:latest 
-docker login
-docker push ardher/visitorcountapp:latest 
+I) Build Container image
+# Goto the folder visitor-app and run below commands:
+$  docker build -t visitorcountapp .
 
+I) Push Container image
+$  docker tag visitorcountapp ardher/visitorcountapp:latest 
+$  docker login
+$  docker push ardher/visitorcountapp:latest 
 ```
 
 **Step 2) Create EKS Cluster**
@@ -87,7 +89,23 @@ Goto Jobs
 Run Job build-and-push
 Verify container image updated to AWS ECR repo
 ```
+***GitLab Pipeline Features:***
+1) Static File Scanning:
+   
+Performs comprehensive scans of static files to detect potential vulnerabilities, misconfigurations, or policy violations early in the development process.
 
+2) Dependency Scanning:
+   
+Analyzes project dependencies to identify known security vulnerabilities and outdated libraries, ensuring a secure and up-to-date codebase.
+
+3) Secret Scanning:
+   
+Detects accidental exposure of sensitive information such as API keys, tokens, and credentials within the code repository, helping to prevent security breaches.
+
+4) Container Image Build & Deployment:
+   
+Builds container images from the application code and securely pushes them to Amazon Elastic Container Registry (AWS ECR), enabling streamlined and automated deployment workflows.
+   
 **Step 2) Create EKS Cluster**
 ```
 I) Deploy EKS Cluster
