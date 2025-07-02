@@ -32,7 +32,7 @@ Kubectl
 
 ### Option 1: Deploy visitor counter app to EKS with Load Balancer using Docker Hub`
 
-**Step 1) Build Image manually**
+**Step 1) Build Image and Push to Docker Hub**
 
 ```
 # Build Container image
@@ -45,37 +45,43 @@ docker push ardher/visitorcountapp:latest
 
 **Step 2) Create EKS Cluster**
 ```
-# Deploy EKS
-Terraform init
-Terraform plan
-Terraform apply
+I) Deploy EKS Cluster
+# Pre=requisite:- Login to aws concole, Goto to VPC, Copy the default VPC ID and update in the file _vars.tf_ from the folder EKS-AD (line no. 7)
+# Goto the folder IaC-EKS-AD and run below commands:
+$  aws configure 
+$  terraform init
+$  terraform plan
+$  terraform apply
 
-# Configure EKS
+II) Connect to EKS cluster
+# Goto the folder EKS-Deployments and run below commands to connect to EKS cluster and check resources
 aws eks update-kubeconfig --name myekstest-cluster-01
-kubectl get svc
-kubectl get nodes
-kubectl get pods
+$  kubectl get svc
+$  kubectl get nodes
+$  kubectl get pods
 
-# Deploy visitor-app Application 
-kubectl apply -f visitor-app-deploy.yml
-kubectl apply -f visitor-app-redis-deploy.yml
-kubectl get deploy
-kubectl get pods
+III) Deploy visitor-app Application 
+$  kubectl apply -f visitor-app-deploy.yml
+$  kubectl apply -f visitor-app-redis-deploy.yml
+$  kubectl get deploy
+$  kubectl get pods
 
-# Verify visitor-app Application is working
-kubectl get svc
+IV)  Verify visitor-app Application is working
+$  kubectl get svc
 >> Browse a75034d3d45714e7ba6213e60fa15bd9-624944191.us-east-2.elb.amazonaws.com
 ```
 
 ### Option 2: Deploy visitor counter app to EKS with Ingress using AWS ECR (Automate deployment using GitLab CICD)
-**Step 1) Build Image using GitLab CICD**
+**Step 1) Build AND Deploy Image to ECR using GitLab CICD**
 ```
-# Configure GitLab CICD Pipeline
+I) Create GitLab Repo
 Login to GitLab
-Create new Project
+Create new Project "cds-visitor-app"
+
+II) Configure GitLab CICD Pipeline
 Copy yml file to the repo
 
-# Deploy Image to ECR
+III) Build and Push Image to ECR
 Goto pipelines to check pipeline status
 Goto Jobs
 Run Job build-and-push
@@ -84,46 +90,50 @@ Verify container image updated to AWS ECR repo
 
 **Step 2) Create EKS Cluster**
 ```
-# Deploy EKS
-Terraform init
-Terraform plan
-Terraform apply
+I) Deploy EKS Cluster
+# Pre=requisite:- Login to aws concole, Goto to VPC, Copy the default VPC ID and update in the file _vars.tf_ from the folder EKS-AD (line no. 7)
+# Goto the folder IaC-EKS-AD and run below commands:
+$  aws configure 
+$  terraform init
+$  terraform plan
+$  terraform apply
 
-# Configure EKS
+II) Connect to EKS cluster
+# Goto the folder EKS-Deployments and run below commands to connect to EKS cluster and check resources
 aws eks update-kubeconfig --name myekstest-cluster-01
-kubectl get svc
-kubectl get nodes
-kubectl get pods
+$  kubectl get svc
+$  kubectl get nodes
+$  kubectl get pods
 
-# Deploy visitor-app Application 
-kubectl apply -f visitor-app-redis-deploy-v2.yml
-kubectl apply -f visitor-app-deploy-v2.yml
-kubectl get deploy
-kubectl get pods
+III) Deploy visitor-app Application 
+$  kubectl apply -f visitor-app-redis-deploy-v2.yml
+$  kubectl apply -f visitor-app-deploy-v2.yml
+$  kubectl get deploy
+$  kubectl get pods
 
-# Verify visitor-app Application is working
-kubectl get svc
+IV) Verify visitor-app Application is working
+$  kubectl get svc
 >> Browse a75034d3d45714e7ba6213e60fa15bd9-624944191.us-east-2.elb.amazonaws.com
 ```
 
 **Step 3) Configure Ingress for EKS Cluster**
 ```
 I) Update kubernates service
-kubectl apply -f visitor-app-deploy-v2.yml
+$  kubectl apply -f visitor-app-deploy-v2.yml
 
 II) Configure Ingress to EKS
 Prerequisites:
 1: enable OIDC for cluster
-eksctl utils associate-iam-oidc-provider --cluster myekstest-cluster-01 --approve
+$  eksctl utils associate-iam-oidc-provider --cluster myekstest-cluster-01 --approve
 2: Create IAM Policy for ALB Controller
-curl -o iam_policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/main/docs/install/iam_policy.json
-aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy --policy-document file://iam_policy.json
+$  curl -o iam_policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/main/docs/install/iam_policy.json
+$  aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy --policy-document file://iam_policy.json
 3: Create IAM SVC Acct for Controller
-eksctl create iamserviceaccount --cluster myekstest-cluster-01 --namespace kube-system --name aws-load-balancer-controller --attach-policy-arn arn:aws:iam::00000000000:policy/AWSLoadBalancerControllerIAMPolicy --approve
+$  eksctl create iamserviceaccount --cluster myekstest-cluster-01 --namespace kube-system --name aws-load-balancer-controller --attach-policy-arn arn:aws:iam::00000000000:policy/AWSLoadBalancerControllerIAMPolicy --approve
 4: Install ALB Controller via Helm
-helm repo add eks https://aws.github.io/eks-charts
-helm repo update
-helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=myekstest-cluster-01 --set region=us-east-2 --set vpcId=vpc-079f124622ede5786 --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller
+$  helm repo add eks https://aws.github.io/eks-charts
+$  helm repo update
+$  helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=myekstest-cluster-01 --set region=us-east-2 --set vpcId=vpc-079f124622ede5786 --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller
 
 III) Deploy Ingress
 kubectl apply -f visitor-app-ingress-v2.yml
