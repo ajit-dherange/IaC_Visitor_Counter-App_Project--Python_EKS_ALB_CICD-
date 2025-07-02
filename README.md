@@ -74,6 +74,7 @@ $  kubectl get svc
 ```
 
 ### Option 2: Deploy visitor counter app to EKS with Ingress using AWS ECR (Automate deployment using GitLab CICD)
+
 **Step 1) Build AND Deploy Image to ECR using GitLab CICD**
 ```
 I) Create GitLab Repo
@@ -87,7 +88,12 @@ III) Build and Push Image to ECR
 Goto pipelines to check pipeline status
 Goto Jobs
 Run Job build-and-push
-Verify container image updated to AWS ECR repo
+Check Pipeline logs and verify job run successfully
+
+IV) Verify Container Image Deployed
+Logon to AWS
+Goto ECR and then select repo "visitorcountapp"
+Verify container image updated to the AWS ECR repo
 ```
 ***GitLab Pipeline Features:***
 1) Static File Scanning:
@@ -105,7 +111,8 @@ Detects accidental exposure of sensitive information such as API keys, tokens, a
 4) Container Image Build & Deployment:
    
 Builds container images from the application code and securely pushes them to Amazon Elastic Container Registry (AWS ECR), enabling streamlined and automated deployment workflows.
-   
+
+
 **Step 2) Create EKS Cluster**
 ```
 I) Deploy EKS Cluster
@@ -132,10 +139,7 @@ $  kubectl get pods
 
 **Step 3) Configure Ingress for EKS Cluster**
 ```
-I) Update kubernates service
-$  kubectl apply -f visitor-app-deploy-v2.yml
-
-II) Configure Ingress to EKS
+I) Configure Ingress to EKS
 Prerequisites:
 1: enable OIDC for cluster
 $  eksctl utils associate-iam-oidc-provider --cluster myekstest-cluster-01 --approve
@@ -149,15 +153,15 @@ $  helm repo add eks https://aws.github.io/eks-charts
 $  helm repo update
 $  helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=myekstest-cluster-01 --set region=us-east-2 --set vpcId=vpc-079f124622ede5786 --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller
 
-III) Deploy Ingress
-kubectl apply -f visitor-app-ingress-v2.yml
-kubectl get deployment -n kube-system aws-load-balancer-controller
-kubectl get ingress
-aws eks describe-cluster --name myekstest-cluster-01 --query "cluster.resourcesVpcConfig.vpcId" --output text
-kubectl get pods -l app=visitor-app -o wide
+II) Deploy Ingress service
+$  kubectl apply -f visitor-app-ingress-v2.yml
+$  kubectl get deployment -n kube-system aws-load-balancer-controller
+$  kubectl get ingress
+$  aws eks describe-cluster --name myekstest-cluster-01 --query "cluster.resourcesVpcConfig.vpcId" --output text
+$  kubectl get pods -l app=visitor-app -o wide
 
 IV) Verify visitor-app Application is working
-kubectl get ingress
+$  kubectl get ingress
 >> Browse k8s-default-visitora-cfab75fbe6-1700530975.us-east-2.elb.amazonaws.com
 ```
 
